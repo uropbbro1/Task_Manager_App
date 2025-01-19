@@ -8,5 +8,5 @@
 
 # Instructions:
 Install dependencies pip install -r requirements.txt.
-Run the app by python app.py.
+Run the app by # python app.py.
 Open your browser and navigate to http://127.0.0.1:5000/.
