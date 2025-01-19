@@ -15,6 +15,34 @@ def index():
         db.session.commit()
     tasks = Task.query.filter_by(user_id=current_user.id)
     return render_template('index.html', tasks=tasks)
+
+@app.route('/task/<int:task_id>/complete', methods=['POST'])
+@login_required
+def complete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.author != current_user:
+        flash('You can only complete your tasks!', 'danger')
+        return redirect(url_for('index'))
+    task.completed = True
+    db.session.commit()
+    flash('Task has been marked as completed.', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/task/<int:task_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task.author != current_user:
+        flash('You can only edit your tasks!', 'danger')
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        task.title = request.form['title']
+        task.description = request.form['description']
+        db.session.commit()
+        flash('Task has been updated.', 'success')
+        return redirect(url_for('index'))
+    return render_template('edit_task.html', task=task)
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -29,6 +57,7 @@ def register():
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -45,6 +74,7 @@ def login():
         else:
            flash('Login Unsuccessful. Please check your username and password', 'danger')
     return render_template('login.html')
+
 @app.route("/logout")
 def logout():
     logout_user()
