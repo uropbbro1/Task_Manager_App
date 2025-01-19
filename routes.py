@@ -49,8 +49,9 @@ def register():
         return redirect(url_for('index'))
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password']
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        password = request.form['password'].encode('utf-8')
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password, salt).decode('utf-8')
         user = User(username=username, password=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -66,7 +67,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and bcrypt.check_password_hash(user.password, password):
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             login_user(user)
             flash('You are logged in!', 'success')
             next_page = request.args.get('next')
