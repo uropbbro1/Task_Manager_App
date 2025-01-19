@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Your Tasks</h1>
+    <form method="post">
+        <input type="text" name="title" placeholder="Task Title" required>
+        <textarea name="description" placeholder="Task Description"></textarea>
+        <button type="submit">Add Task</button>
+    </form>
+    <ul class="task-list">
+    {% for task in tasks %}
+        <li class="task-item {% if task.completed %}completed{% endif %}">
+            <p><strong>{{ task.title }}</strong></p>
+            <p>{{ task.description }}</p>
+             {% if not task.completed %}
+            <form action="{{ url_for('complete_task', task_id=task.id) }}" method="post">
+                <button type="submit">Complete</button>
+            </form>
+             {% endif %}
+             <a href="{{ url_for('edit_task', task_id=task.id) }}">Edit</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
